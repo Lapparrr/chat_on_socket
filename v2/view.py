@@ -13,40 +13,48 @@ def receive():
             break
 
 
-def send(event=None):
-    msg = my_msg.get()
-    my_msg.set("")
-    client_socket.send(bytes(msg, "utf8"))
-    if msg == "{quit}":
-        client_socket.close()
-        top.quit()
+
 
 
 def on_closing(event=None):
     my_msg.set("{quit}")
     send()
 
-top = tkinter.Tk()
-top.title("TkMessenger")
+class App:
 
-messages_frame = tkinter.Frame(top)
-my_msg = tkinter.StringVar()
-my_msg.set("Введите ваше сообщение здесь")
-scrollbar = tkinter.Scrollbar(messages_frame)
-msg_list = tkinter.Listbox(messages_frame, height=15, width=50, yscrollcommand=scrollbar.set)
-scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-msg_list.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
-msg_list.pack()
-messages_frame.pack()
+    def __init__(self, root: tkinter.Tk):
+        root.title('Messenger')
 
-entry_field = tkinter.Entry(top, textvariable=my_msg)
-entry_field.bind("<Return>", send)
-entry_field.pack()
-send_button = tkinter.Button(top, text="отправить", command=send)
-send_button.pack()
+        msg_frame = tkinter.Frame(root)
+        msg = tkinter.StringVar()
+        msg.set("Введите ваше сообщение здесь")
 
-top.protocol("WM_DELETE_WINDOW", on_closing)
+        scrollbar = tkinter.Scrollbar(msg_frame)
+        msg_list = tkinter.Listbox(msg_frame, height=15, width=50,
+                                   yscrollcommand=scrollbar.set)
 
+        scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+        msg_list.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
+        msg_list.pack()
+        msg_frame.pack()
+
+        entry_field = tkinter.Entry(root, textvariable=msg)
+        entry_field.bind("<Return>", send)
+        entry_field.pack()
+
+        send_button = tkinter.Button(root, text="отправить", command=app.send)
+        send_button.pack()
+        root.protocol("WM_DELETE_WINDOW", on_closing)
+
+
+
+def send(self, event=None):
+    msg = my_msg.get()
+    my_msg.set("")
+    client_socket.send(bytes(msg, "utf8"))
+    if msg == "{quit}":
+        client_socket.close()
+        top.quit()
 
 HOST = input('Введите хост: ')
 PORT = input('Введите порт: ')
