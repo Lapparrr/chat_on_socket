@@ -6,9 +6,9 @@ from threading import Thread
 def accept_incoming_connections():
     while True:
         client, client_address = SERVER.accept()
-        print("%s:%s соединено" % client_address)
+        print("%s:%s connect" % client_address)
         client.send(
-            bytes("Добро пожаловать , введите своё имя и нажмите Enter",
+            bytes("Enter you name and press Enter",
                   "utf8"))
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
@@ -16,9 +16,9 @@ def accept_incoming_connections():
 
 def handle_client(client):
     name = client.recv(BUFSIZ).decode("utf8")
-    welcome = 'Добро пожаловать %s! Если желаете выйти,то нажмите {quit} чтобы выйти.' % name
+    welcome = 'Hello %s! if you want to quit press {quit}.' % name
     client.send(bytes(welcome, "utf8"))
-    msg = "%s вступил в переписку" % name
+    msg = "%s joined the chat" % name
     broadcast(bytes(msg, "utf8"))
     clients[client] = name
 
@@ -30,7 +30,7 @@ def handle_client(client):
             client.send(bytes("{quit}", "utf8"))
             client.close()
             del clients[client]
-            broadcast(bytes("%s покинул переписку" % name, "utf8"))
+            broadcast(bytes("%s leave chat" % name, "utf8"))
             break
 
 
@@ -52,7 +52,7 @@ SERVER.bind(ADDR)
 
 if __name__ == "__main__":
     SERVER.listen(5)
-    print("ожидание соединения")
+    print("with for connect")
     ACCEPT_THREAD = Thread(target=accept_incoming_connections)
     ACCEPT_THREAD.start()
     ACCEPT_THREAD.join()
