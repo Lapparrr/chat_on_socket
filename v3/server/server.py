@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import time
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 
@@ -25,6 +26,7 @@ def handle_client(client):
     while True:
         msg = client.recv(BUFSIZ)
         if msg != bytes("{quit}", "utf8"):
+            print(msg)
             broadcast(msg, name + ": ")
         else:
             client.send(bytes("{quit}", "utf8"))
@@ -36,8 +38,11 @@ def handle_client(client):
 
 def broadcast(msg, prefix=""):
     for sock in clients:
-        sock.send(bytes(prefix, "utf8") + msg)
-
+        try:
+            sock.send(bytes(prefix, "utf8") + msg)
+        except BrokenPipeError:
+            time.sleep(1)
+            sock.send(bytes(prefix, "utf8") + msg)
 
 clients = {}
 addresses = {}
@@ -52,7 +57,7 @@ SERVER.bind(ADDR)
 
 if __name__ == "__main__":
     SERVER.listen(5)
-    print("with for connect")
+    print("wait for connect")
     ACCEPT_THREAD = Thread(target=accept_incoming_connections)
     ACCEPT_THREAD.start()
     ACCEPT_THREAD.join()
